@@ -91,7 +91,6 @@ def updateCharges(stitched, molecules, common_atoms):
 				stitched.node[atom]["charge"] += molecule.node[atom]["charge"]
 				for hydrogen in atom_hydrogens:
 					stitched.node[atom]["charge"] += molecule.node[hydrogen]["charge"]
-		print(stitched.node["CAM"]["charge"])
 
 	stitched = subtractHydrogens(stitched, common_atoms)
 	return(stitched)
@@ -168,11 +167,7 @@ stitched = updateCharges(stitched, molecules, common_atoms)
 
 writeToFile(opts.original_ligand, stitched, opts.stitched_name)
 
-print("\n \n")
-print(stitched.node["CAM"])
-print(stitched.node["CAH"])
-print(stitched.node["CBD"])
 print(totalCharge(stitched))
-
+print("DONE.")
 
 
