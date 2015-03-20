@@ -21,6 +21,11 @@ ATOM ATOM_NAME ATOM_TYPE NEW_PARTIAL_CHARGE
 
 which you can then copy paste into the original .str file for the parent ligand to update the partial charges.
 
+SAMPLE USAGE (from test_files directory)
+
+python ../main.py -o bfoa_paramchem.str -f bf0_lys_frag1.str -f bfna_nonbonded_methyl_frag2.str -f bfna_frag_3_alkene.str -s test_output.top 
+
+********
 In the next version, we will add: 
 
 Automatic generation of a whole new .str file so you won't have to copy-paste anything
