@@ -269,6 +269,7 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 	atom_names = []
 	bond_lines = []
 	improper_lines = []
+	resi = str()
 	for line in molecule_file.readlines():
 		if (line[0:4] == "ATOM"):
 			atom_names.append(line.split()[1])
@@ -276,9 +277,14 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 			bond_lines.append(line)
 		if (line[0:5] == "IMPR "):
 			improper_lines.append(line)
+		if (line[0:4] == "RESI"):
+			resi = line
 
 			
 	new_file = open("%s" %new_title, 'wb')
+
+	new_file.write(resi)
+	new_file.write("\nGROUP\n")
 
 	for atom in atom_names:
 		atom_type = stitched.node[atom]["atom_type"]
