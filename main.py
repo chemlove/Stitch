@@ -496,7 +496,7 @@ if(opts.use_frag_params.lower() == "true"):
 else:
 	print "Using bond/angle/dihedral params from original .str file"
 
-cgenff_parameters = getParameters("../toppar/par_all36_cgenff.prm")
+cgenff_parameters = getParameters("/share/PI/rondror/software/Stitch/Stitch/toppar/par_all36_cgenff.prm")
 
 writeToFile(opts.original_ligand, stitched, stitched_parameters, cgenff_parameters, opts.output_all_params, opts.stitched_name)
 
