@@ -134,16 +134,26 @@ def getParameters(molecule):
 			if len(dihedral) == 0: continue
 			atoms = (dihedral[0], dihedral[1], dihedral[2], dihedral[3])
 			parms = (dihedral[4], dihedral[5], dihedral[6])
-			dihedrals[atoms] = [float(k) for k in parms]
+			parms = [float(k) for k in parms]
+			if (atoms in dihedrals.keys()):
+				dihedrals[atoms].append(parms)
+			else:
+				dihedrals[atoms] = []
+				dihedrals[atoms].append(parms)
 
 	if exist_impropers:
-		for j in range(improper_line, end_line-2):
+		for j in range(improper_line, end_line-1):
 			if (lines[j][0] == "!"): continue
 			improper = lines[j].split()
 			if len(improper) == 0: continue
 			atoms = (improper[0], improper[1], improper[2], improper[3])
 			parms = (improper[4], improper[5], improper[6])
-			impropers[atoms] = [float(k) for k in parms]
+			parms = [float(k) for k in parms]
+			if (atoms in impropers.keys()):
+				impropers[atoms].append(parms)
+			else:
+				impropers[atoms] = []
+				impropers[atoms].append(parms)
 	return (bonds, angles, dihedrals, impropers)
 
 
@@ -310,7 +320,7 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 		new_file.write(improper)
 	new_file.write("\n")
 
-	new_file.write("END \n \n ! Begin Parameters: \n \n ")
+	new_file.write("END \n \n ! Begin Parameters: \n \n")
 
 	for j in range(0, len(parameters)):
 		if j == 0:
@@ -352,51 +362,57 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 		if j == 2:
 			new_file.write("DIHEDRALS\n")
 			for parm_key in parameters[j].keys():
-				if output_all_params.lower() == "true":
+				if output_all_params.lower() == "false":
 					if parm_key in cgenff[j].keys(): continue
-				atom = ""
-				for k in range(0,len(parm_key)-1):
-					atom = parm_key[k]
-					new_file.write(atom)
-					for l in range(0,7-len(atom)):
-						new_file.write(" ")
-				new_file.write(atom)
-				for l in range(0,10-len(atom)):
-					new_file.write(" ")
-				new_file.write("%.4f" %parameters[j][parm_key][0])
-				for l in range(0,2):
-					new_file.write(" ")
-				new_file.write("%d" %parameters[j][parm_key][1])
-				phase = parameters[j][parm_key][2]
 
-				for l in range(0,8-len(str(int(parameters[j][parm_key][2])))):
-					new_file.write(" ")
-				new_file.write("%.2f\n" %parameters[j][parm_key][2])
-			new_file.write("\n")
+				for term in parameters[j][parm_key]:
+					atom = ""
+					for k in range(0,len(parm_key)-1):
+						atom = parm_key[k]
+						new_file.write(atom)
+						for l in range(0,7-len(atom)):
+							new_file.write(" ")
+					atom = parm_key[k+1]
+					new_file.write(atom)
+					for l in range(0,10-len(atom)):
+						new_file.write(" ")
+					new_file.write("%.4f" %term[0])
+					for l in range(0,2):
+						new_file.write(" ")
+					new_file.write("%d" %term[1])
+					phase = term[2]
+
+					for l in range(0,8-len(str(int(term[2])))):
+						new_file.write(" ")
+					new_file.write("%.2f\n" %term[2])
+			new_file.write("\n")		
 
 		if j == 3:
 			new_file.write("IMPROPERS\n")
 			for parm_key in parameters[j].keys():
-				if output_all_params.lower() == "true":
+				if output_all_params.lower() == "false":
 					if parm_key in cgenff[j].keys(): continue
-				atom = ""
-				for k in range(0,len(parm_key)-1):
-					atom = parm_key[k]
-					new_file.write(atom)
-					for l in range(0,7-len(atom)):
-						new_file.write(" ")
-				new_file.write(atom)
-				for l in range(0,10-len(atom)):
-					new_file.write(" ")
-				new_file.write("%.4f" %parameters[j][parm_key][0])
-				for l in range(0,2):
-					new_file.write(" ")
-				new_file.write("%d" %parameters[j][parm_key][1])
-				phase = parameters[j][parm_key][2]
 
-				for l in range(0,8-len(str(int(parameters[j][parm_key][2])))):
-					new_file.write(" ")
-				new_file.write("%.2f\n" %parameters[j][parm_key][2])
+				for term in parameters[j][parm_key]:
+					atom = ""
+					for k in range(0,len(parm_key)-1):
+						atom = parm_key[k]
+						new_file.write(atom)
+						for l in range(0,7-len(atom)):
+							new_file.write(" ")
+					atom = parm_key[k+1]
+					new_file.write(atom)
+					for l in range(0,10-len(atom)):
+						new_file.write(" ")
+					new_file.write("%.4f" %term[0])
+					for l in range(0,2):
+						new_file.write(" ")
+					new_file.write("%d" %term[1])
+					phase = term[2]
+
+					for l in range(0,8-len(str(int(term[2])))):
+						new_file.write(" ")
+					new_file.write("%.2f\n" %term[2])
 			new_file.write("\n")
 	new_file.write("END\n")
 	new_file.write("RETURN")				
