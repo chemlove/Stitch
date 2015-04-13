@@ -239,7 +239,8 @@ as stitched_parameters, a 4-tuple of dictionaries.
 
 '''
 
-def updateParameters(molecules, parameters, stitched):
+def updateParameters(molecules, parameters, stitched, cgenff_parameters):
+
 	for i in range(1, len(molecules)):
 		fragment = molecules[i]
 		for frag_atom in fragment.nodes():
@@ -247,7 +248,7 @@ def updateParameters(molecules, parameters, stitched):
 			for stitched_atom in matching:
 				stitched.node[stitched_atom]["atom_type"] = fragment.node[frag_atom]["atom_type"]
 	
-	stitched_parameters = parameters[0]
+	stitched_parameters = deepcopy(parameters[0])
 	for j in range(0, len(stitched_parameters)):
 		for parameter_key in stitched_parameters[j].keys():
 			for i in range(1, len(molecules)):
@@ -260,6 +261,10 @@ def updateParameters(molecules, parameters, stitched):
 				elif reversed(parameter_key) in fragment_parameters[j].keys():
 					stitched_parameters[j].pop(parameter_key, None)
 					stitched_parameters[j][reversed(parameter_key)] = fragment_parameters[j][reversed(parameter_key)]
+
+				#elif (parameter_key not in cgenff_parameters[j].keys()) or (reversed(parameter_key) not in cgenff_parameters.keys()):
+				#	print("This parameter with these atom types is not in CGenFF standard parameters")
+
 
 	return (stitched, stitched_parameters)
 
@@ -293,6 +298,9 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 			
 	new_file = open("%s" %new_title, 'wb')
 
+	new_file.write("read rtf card append\n \n")
+	new_file.write("36 1\n")
+
 	new_file.write(resi)
 	new_file.write("\nGROUP\n")
 
@@ -320,7 +328,9 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 		new_file.write(improper)
 	new_file.write("\n")
 
-	new_file.write("END \n \n ! Begin Parameters: \n \n")
+	new_file.write("END \n \n")
+	new_file.write("read param card flex append")
+	new_file.write("\n \n! Begin Parameters: \n")
 
 	for j in range(0, len(parameters)):
 		if j == 0:
@@ -487,16 +497,18 @@ parameters = list()
 
 for i in range(0, len(molecule_files)):
 	parameters.append(getParameters(molecule_files[i]))
-
 stitched_parameters = parameters[0]
+
+toppar_location = os.path.abspath(os.path.join(os.path.realpath(__file__), "../toppar/par_all36_cgenff.prm"))
+cgenff_parameters = getParameters(toppar_location)
 
 if(opts.use_frag_params.lower() == "true"):
 	print "Using bond/angle/dihedral params from the individual fragments when possible"
-	(stitched, stitched_parameters) = updateParameters(molecules, parameters, stitched)
+	(stitched, stitched_parameters) = updateParameters(molecules, parameters, stitched, cgenff_parameters)
 else:
 	print "Using bond/angle/dihedral params from original .str file"
 
-cgenff_parameters = getParameters("/share/PI/rondror/software/Stitch/Stitch/toppar/par_all36_cgenff.prm")
+
 
 writeToFile(opts.original_ligand, stitched, stitched_parameters, cgenff_parameters, opts.output_all_params, opts.stitched_name)
 
