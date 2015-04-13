@@ -9,7 +9,9 @@ Stitch automates the process of re-assembling those fragments with significantly
 
 SAMPLE USAGE (from test_files directory)
 
-python ../main.py -o bfoa_paramchem.str -f bf0_lys_frag1.str -f bfna_nonbonded_methyl_frag2.str -f bfna_frag_3_alkene.str -s test_output.top -a TRUE -p TRUE
+python ../main.py -o bfoa_paramchem.str -f bf0_lys_frag1.str -f bfna_nonbonded_methyl_frag2.str -f bfna_frag_3_alkene.str -s test_output.top -a FALSE -p TRUE
+
+NOTE: If you use "-p true", i.e. use bonded parms from the fragments whenever possible, you must select option "Include parameters that are already in CGenFF" when you upload the original Mol2 file of your original ligand to ParamChem.
 
 Currently (this will be improved over time), Stitch takes as input:
 
