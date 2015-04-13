@@ -336,7 +336,7 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 		if j == 0:
 			new_file.write("BONDS\n")
 			for parm_key in parameters[j].keys():
-				if output_all_params.lower() == "true":
+				if output_all_params.lower() == "false":
 					if parm_key in cgenff[j].keys(): continue
 				atom = ""
 				for k in range(0,len(parm_key)):
@@ -354,7 +354,7 @@ def writeToFile(original_file, stitched, parameters, cgenff, output_all_params, 
 		if j == 1:
 			new_file.write("ANGLES\n")
 			for parm_key in parameters[j].keys():
-				if output_all_params.lower() == "true":
+				if output_all_params.lower() == "false":
 					if parm_key in cgenff[j].keys(): continue
 				atom = ""
 				for k in range(0,len(parm_key)):
