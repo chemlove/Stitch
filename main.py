@@ -271,6 +271,7 @@ def updateParameters(molecules, parameters, stitched, cgenff_parameters):
 
 	stitched_parameters = parameters[0]
 
+
 	for i in range(1, len(translated)):
 		fragment_initial = molecules[i]
 		fragment_translated = translated[i]
@@ -287,34 +288,38 @@ def updateParameters(molecules, parameters, stitched, cgenff_parameters):
 
 			dihedral_paths = findPaths(fragment_initial,atom,3)
 			for dihedral in dihedral_paths: dihedrals.append(dihedral)
+
 		for bond in bonds:
 			bond = tuple(bond)
-			#print(bond)
-			#print(translateKey(fragment_initial, bond))
-			#print(translateKey(fragment_translated, bond))
 			if translateKey(fragment_initial, bond) in fragment_parameters[0].keys():
-				print("HI")
 				if translateKey(fragment_translated, bond) in stitched_parameters[0].keys():
-					print("hi")
 					stitched_parameters[0][translateKey(fragment_translated, bond)] = fragment_parameters[0][translateKey(fragment_initial, bond)]
+					if translateKey(fragment_translated, bond) != translateKey(fragment_initial, bond): 
+						print("Changed bond parameter for %s with the parameter for %s" %(translateKey(fragment_translated, bond), translateKey(fragment_initial, bond)))
 
 		for angle in angles:
 			anlge = tuple(angle)
 			if translateKey(fragment_initial, angle) in fragment_parameters[1].keys():
 				if translateKey(fragment_translated, angle) in stitched_parameters[1].keys():
 					stitched_parameters[1][translateKey(fragment_translated, angle)] = fragment_parameters[1][translateKey(fragment_initial, angle)]
+					if translateKey(fragment_translated, angle) != translateKey(fragment_initial, angle): 
+						print("Changed angle parameter for %s with the parameter for %s" %(translateKey(fragment_translated, angle), translateKey(fragment_initial, angle)))
 
 		for dihedral in dihedrals:
 			dihedral = tuple(dihedral)
 			if translateKey(fragment_initial, dihedral) in fragment_parameters[2].keys():
 				if translateKey(fragment_translated, dihedral) in stitched_parameters[2].keys():
 					stitched_parameters[2][translateKey(fragment_translated, dihedral)] = fragment_parameters[2][translateKey(fragment_initial, dihedral)]
+					if translateKey(fragment_translated, dihedral) != translateKey(fragment_initial, dihedral): 
+						print("Changed dihedral parameter for %s with the parameter for %s" %(translateKey(fragment_translated, dihedral), translateKey(fragment_initial, dihedral)))
 
 		for improper in dihedrals:
 			improper = tuple(improper)
 			if translateKey(fragment_initial, improper) in fragment_parameters[3].keys():
 				if translateKey(fragment_translated, improper) in stitched_parameters[4].keys():
 					stitched_parameters[3][translateKey(fragment_translated, improper)] = fragment_parameters[3][translateKey(fragment_initial, improper)]
+					if translateKey(fragment_translated, improper) != translateKey(fragment_initial, improper): 
+						print("Changed improper parameter for %s with the parameter for %s" %(translateKey(fragment_translated, improper), translateKey(fragment_initial, improper)))
 
 	'''
 	stitched_parameters = deepcopy(parameters[0])
