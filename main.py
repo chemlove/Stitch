@@ -239,15 +239,84 @@ as stitched_parameters, a 4-tuple of dictionaries.
 
 '''
 
+def findPaths(G,u,n):
+    if n==0:
+        return [[u]]
+    paths = []
+    for neighbor in G.neighbors(u):
+        for path in findPaths(G,neighbor,n-1):
+            if u not in path:
+                paths.append([u]+path)
+    return paths
+
+def translateKey(molecule, old_key):
+	key = list(deepcopy(old_key))
+	for i in range(0, len(key)):
+		key[i] = molecule.node[key[i]]["atom_type"]
+	return tuple(key)
+
 def updateParameters(molecules, parameters, stitched, cgenff_parameters):
 
-	for i in range(1, len(molecules)):
-		fragment = molecules[i]
+	#translate fragment atom types to master atom types 
+	translated = deepcopy(molecules)
+	for i in range(1, len(translated)):
+		fragment = translated[i]
+
 		for frag_atom in fragment.nodes():
-			matching = filter(lambda x: frag_atom[0:3] in x, stitched.nodes())
-			for stitched_atom in matching:
-				stitched.node[stitched_atom]["atom_type"] = fragment.node[frag_atom]["atom_type"]
-	
+			if frag_atom in stitched.nodes():
+				fragment.node[frag_atom]["atom_type"] = stitched.node[frag_atom]["atom_type"]
+			elif frag_atom[0] == "H":
+				if frag_atom[0:(len(frag_atom)-1)] in stitched.nodes():
+					fragment.node[frag_atom]["atom_type"] = stitched.node[frag_atom[0:(len(frag_atom)-1)]]["atom_type"]
+
+	stitched_parameters = parameters[0]
+
+	for i in range(1, len(translated)):
+		fragment_initial = molecules[i]
+		fragment_translated = translated[i]
+		fragment_parameters = parameters[i]
+		bonds = []
+		angles = []
+		dihedrals = []
+		for atom in fragment_initial.nodes():
+			bond_paths = findPaths(fragment_initial,atom,1)
+			for bond in bond_paths: bonds.append(bond)
+
+			angle_paths = findPaths(fragment_initial,atom,2)
+			for angle in angle_paths: angles.append(angle)
+
+			dihedral_paths = findPaths(fragment_initial,atom,3)
+			for dihedral in dihedral_paths: dihedrals.append(dihedral)
+		for bond in bonds:
+			bond = tuple(bond)
+			#print(bond)
+			#print(translateKey(fragment_initial, bond))
+			#print(translateKey(fragment_translated, bond))
+			if translateKey(fragment_initial, bond) in fragment_parameters[0].keys():
+				print("HI")
+				if translateKey(fragment_translated, bond) in stitched_parameters[0].keys():
+					print("hi")
+					stitched_parameters[0][translateKey(fragment_translated, bond)] = fragment_parameters[0][translateKey(fragment_initial, bond)]
+
+		for angle in angles:
+			anlge = tuple(angle)
+			if translateKey(fragment_initial, angle) in fragment_parameters[1].keys():
+				if translateKey(fragment_translated, angle) in stitched_parameters[1].keys():
+					stitched_parameters[1][translateKey(fragment_translated, angle)] = fragment_parameters[1][translateKey(fragment_initial, angle)]
+
+		for dihedral in dihedrals:
+			dihedral = tuple(dihedral)
+			if translateKey(fragment_initial, dihedral) in fragment_parameters[2].keys():
+				if translateKey(fragment_translated, dihedral) in stitched_parameters[2].keys():
+					stitched_parameters[2][translateKey(fragment_translated, dihedral)] = fragment_parameters[2][translateKey(fragment_initial, dihedral)]
+
+		for improper in dihedrals:
+			improper = tuple(improper)
+			if translateKey(fragment_initial, improper) in fragment_parameters[3].keys():
+				if translateKey(fragment_translated, improper) in stitched_parameters[4].keys():
+					stitched_parameters[3][translateKey(fragment_translated, improper)] = fragment_parameters[3][translateKey(fragment_initial, improper)]
+
+	'''
 	stitched_parameters = deepcopy(parameters[0])
 	for j in range(0, len(stitched_parameters)):
 		for parameter_key in stitched_parameters[j].keys():
@@ -264,7 +333,7 @@ def updateParameters(molecules, parameters, stitched, cgenff_parameters):
 
 				#elif (parameter_key not in cgenff_parameters[j].keys()) or (reversed(parameter_key) not in cgenff_parameters.keys()):
 				#	print("This parameter with these atom types is not in CGenFF standard parameters")
-
+	'''
 
 	return (stitched, stitched_parameters)
 
